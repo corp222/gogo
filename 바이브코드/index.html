@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>저랑 성심당 가요 🍞✨</title>
+  <!-- Google Fonts: Gowun Dodum & Jua -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Dodum&family=Jua&display=swap" rel="stylesheet">
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Canvas Confetti CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            bakery: {
+              cream: '#FFFDF9',
+              warm: '#FDF6EC',
+              yellow: '#F59E0B',
+              brown: '#8B4513',
+              dark: '#4A2810',
+              crust: '#D97706',
+              accent: '#EA580C',
+              soft: '#FDE68A'
+            }
+          },
+          fontFamily: {
+            jua: ['Jua', 'sans-serif'],
+            gowun: ['"Gowun Dodum"', 'sans-serif']
+          },
+          animation: {
+            'bounce-slow': 'bounce 2.5s infinite',
+            'wiggle': 'wiggle 0.5s ease-in-out infinite',
+            'float': 'float 3.5s ease-in-out infinite',
+            'pop': 'pop 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) forwards'
+          },
+          keyframes: {
+            wiggle: {
+              '0%, 100%': { transform: 'rotate(-3deg)' },
+              '50%': { transform: 'rotate(3deg)' }
+            },
+            float: {
+              '0%, 100%': { transform: 'translateY(0px)' },
+              '50%': { transform: 'translateY(-10px)' }
+            },
+            pop: {
+              '0%': { transform: 'scale(0.85)', opacity: '0' },
+              '100%': { transform: 'scale(1)', opacity: '1' }
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Gowun Dodum', sans-serif;
+      background-color: #FAF4EB;
+      background-image: radial-gradient(#E8D5C4 1px, transparent 1px);
+      background-size: 24px 24px;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      overflow-x: hidden;
+      min-height: 100vh;
+    }
+
+    .title-font {
+      font-family: 'Jua', sans-serif;
+    }
+
+    /* Floating bread background decoration */
+    .bg-bread {
+      position: absolute;
+      opacity: 0.12;
+      pointer-events: none;
+      z-index: 0;
+      animation: float 4s ease-in-out infinite;
+    }
+
+    /* Custom Glassmorphism Card (overflow NOT hidden so child elements are never clipped) */
+    .glass-card {
+      background: rgba(255, 255, 255, 0.94);
+      backdrop-filter: blur(14px);
+      border: 2px solid rgba(245, 158, 11, 0.22);
+      box-shadow: 0 24px 48px -15px rgba(139, 69, 19, 0.14),
+                  0 0 0 1px rgba(255, 255, 255, 0.85) inset;
+    }
+
+    /* Runaway Button: smooth spring glide */
+    #noBtn {
+      will-change: left, top, transform;
+      user-select: none;
+      touch-action: none;
+    }
+
+    #noBtn.is-running {
+      position: fixed !important;
+      z-index: 99999 !important;
+      margin: 0 !important;
+      box-shadow: 0 16px 32px -4px rgba(74, 40, 16, 0.25) !important;
+      transition: left 0.32s cubic-bezier(0.18, 0.89, 0.32, 1.15), 
+                  top 0.32s cubic-bezier(0.18, 0.89, 0.32, 1.15), 
+                  transform 0.15s ease !important;
+    }
+
+    /* Ticket dashed line */
+    .ticket-dashed {
+      border-top: 2px dashed #E5D5C5;
+      position: relative;
+    }
+    .ticket-dashed::before, .ticket-dashed::after {
+      content: '';
+      position: absolute;
+      top: -12px;
+      width: 24px;
+      height: 24px;
+      background-color: #FAF4EB;
+      border-radius: 50%;
+    }
+    .ticket-dashed::before { left: -26px; }
+    .ticket-dashed::after { right: -26px; }
+
+    /* Custom Bread Card Active State */
+    .bread-card.active {
+      border-color: #F59E0B;
+      background-color: #FEF3C7;
+      box-shadow: 0 4px 14px -2px rgba(245, 158, 11, 0.35);
+      transform: translateY(-2px);
+    }
+  </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-4 relative text-[#4A2810]">
+
+  <!-- Background decorative floating bakery icons -->
+  <div class="bg-bread text-5xl top-10 left-10" style="animation-delay: 0s;">🥐</div>
+  <div class="bg-bread text-6xl top-1/4 right-12" style="animation-delay: 1.2s;">🥖</div>
+  <div class="bg-bread text-5xl bottom-16 left-16" style="animation-delay: 2.1s;">🍰</div>
+  <div class="bg-bread text-6xl bottom-12 right-20" style="animation-delay: 0.7s;">🍓</div>
+  <div class="bg-bread text-4xl top-12 right-1/3" style="animation-delay: 1.8s;">🥪</div>
+  <div class="bg-bread text-5xl bottom-1/3 left-8" style="animation-delay: 2.8s;">🥯</div>
+
+  <!-- Main Container -->
+  <main class="w-full max-w-lg relative z-10 my-6">
+
+    <!-- ============================================== -->
+    <!-- PAGE 1: 저랑 성심당 가요 (싫어 버튼 마우스 인식 도망) -->
+    <!-- ============================================== -->
+    <div id="page1" class="glass-card rounded-3xl p-7 sm:p-9 text-center transition-all duration-500 shadow-2xl relative">
+      <!-- Top Cute Badge -->
+      <div class="inline-flex items-center gap-1.5 bg-amber-100 text-amber-900 text-sm font-semibold px-4 py-1.5 rounded-full mb-4 border border-amber-200">
+        <span>🍞</span>
+        <span>성심당 빵지순례 공식 초대장</span>
+      </div>
+
+      <!-- 3D Sungsimdang Entrance Storefront (Direct Front View) -->
+      <div class="relative w-48 h-48 sm:w-52 sm:h-52 mx-auto mb-3 flex items-center justify-center">
+        <!-- Glow Aura -->
+        <div class="absolute inset-0 bg-amber-300/40 rounded-full blur-2xl animate-pulse"></div>
+        <img id="mainMascotImg"
+             src="images/thumb/entrance_front_trans.png"
+             alt="성심당 본점 정면 입구"
+             class="relative w-full h-full object-contain filter drop-shadow-xl animate-float select-none cursor-pointer hover:scale-105 transition-transform duration-300"
+             onclick="playBeep('select')">
+      </div>
+
+      <!-- Question Title -->
+      <h1 class="title-font text-3xl sm:text-4xl text-bakery-dark mb-2 tracking-wide">
+        저랑 성심당 가요!
+      </h1>
+      <p class="text-stone-600 mb-5 text-sm sm:text-base leading-relaxed">
+        갓 구운 소보로랑 바삭한 고로케가 기다려요 🥖✨<br>
+        대전에서 가장 맛있는 빵, 같이 먹으러 가실래요?
+      </p>
+
+      <!-- Teasing message box for when user tries to catch "싫어" -->
+      <div id="teaseMsg" class="h-8 mb-4 text-sm font-bold text-amber-700 opacity-0 transition-opacity duration-200 flex items-center justify-center">
+        <!-- Message inserted dynamically -->
+      </div>
+
+      <!-- Button Arena -->
+      <div id="btnContainer" class="flex flex-col sm:flex-row items-center justify-center gap-4 relative min-h-[80px]">
+        <!-- '좋아' 버튼 -->
+        <button id="yesBtn"
+          class="w-full sm:w-44 py-4 px-6 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white title-font text-2xl rounded-2xl shadow-lg hover:shadow-xl hover:scale-105 active:scale-95 transition-all duration-200 border-2 border-amber-400/50 flex items-center justify-center gap-2 group cursor-pointer z-10">
+          <span>좋아!</span>
+          <span class="text-xl group-hover:rotate-12 transition-transform">😋</span>
+        </button>
+
+        <!-- '싫어' 도망치는 버튼 -->
+        <button id="noBtn"
+          class="w-full sm:w-44 py-4 px-6 bg-stone-200 hover:bg-stone-300 text-stone-600 title-font text-2xl rounded-2xl shadow-md border-2 border-stone-300 flex items-center justify-center gap-2 cursor-pointer select-none z-20">
+          <span id="noBtnText">싫어</span>
+          <span id="noBtnEmoji">🥺</span>
+        </button>
+      </div>
+
+      <div class="mt-7 text-xs text-stone-400">
+        * 성심당 메아리: 거절은 엄격히 금지되어 있습니다 😌
+      </div>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- PAGE 2: 날짜, 시간 선택 & 3D 빵 위시리스트 -->
+    <!-- ============================================== -->
+    <div id="page2" class="glass-card rounded-3xl p-6 sm:p-8 text-center hidden transition-all duration-500 shadow-2xl">
+      <!-- Header -->
+      <div class="inline-flex items-center gap-1.5 bg-amber-100 text-amber-900 text-sm font-semibold px-4 py-1.5 rounded-full mb-3 border border-amber-200">
+        <span>🗓️</span>
+        <span>STEP 2. 일정 & 빵 고르기</span>
+      </div>
+
+      <h2 class="title-font text-2xl sm:text-3xl text-bakery-dark mb-1">
+        언제 빵 털러 갈까요? 🥖
+      </h2>
+      <p class="text-stone-600 text-xs sm:text-sm mb-5">
+        가장 설레는 일정과 먹고 싶은 빵을 담아주세요!
+      </p>
+
+      <!-- Form -->
+      <form id="scheduleForm" class="space-y-5 text-left" onsubmit="event.preventDefault(); goToPage3();">
+        <!-- Date Selection -->
+        <div>
+          <label for="visitDate" class="block text-sm font-bold text-bakery-dark mb-1.5 flex items-center gap-1.5">
+            <span>📅</span>
+            <span>방문 날짜</span>
+            <span class="text-amber-600 text-xs font-normal">(필수)</span>
+          </label>
+          <input type="date" id="visitDate" required
+            class="w-full px-4 py-3 rounded-xl border-2 border-amber-200 focus:border-amber-500 focus:outline-none bg-amber-50/50 text-stone-800 font-medium transition-colors">
+        </div>
+
+        <!-- Time Slot Selection -->
+        <div>
+          <label class="block text-sm font-bold text-bakery-dark mb-1.5 flex items-center gap-1.5">
+            <span>⏰</span>
+            <span>출발 시간</span>
+            <span class="text-amber-600 text-xs font-normal">(필수)</span>
+          </label>
+          <div class="grid grid-cols-2 gap-2.5" id="timeSlots">
+            <button type="button" class="time-slot-btn py-2.5 px-2.5 rounded-xl border-2 border-stone-200 hover:border-amber-400 text-stone-700 text-sm font-medium text-center transition-all bg-white flex flex-col items-center justify-center gap-0.5" data-time="오전 10:00" data-desc="운동 후 밥까지 먹고 출발">
+              <span class="font-bold text-sm text-stone-800">오전 10:00</span>
+              <span class="text-[11px] text-amber-700 leading-tight">운동 후 밥까지 먹고 출발</span>
+            </button>
+            <button type="button" class="time-slot-btn py-2.5 px-2.5 rounded-xl border-2 border-stone-200 hover:border-amber-400 text-stone-700 text-sm font-medium text-center transition-all bg-white flex flex-col items-center justify-center gap-0.5" data-time="오후 01:00" data-desc="오전 작업 후 출발">
+              <span class="font-bold text-sm text-stone-800">오후 01:00</span>
+              <span class="text-[11px] text-amber-700 leading-tight">오전 작업 후 출발</span>
+            </button>
+            <button type="button" class="time-slot-btn py-2.5 px-2.5 rounded-xl border-2 border-stone-200 hover:border-amber-400 text-stone-700 text-sm font-medium text-center transition-all bg-white flex flex-col items-center justify-center gap-0.5" data-time="오후 03:00" data-desc="저녁 먹기 전에 돌아오자">
+              <span class="font-bold text-sm text-stone-800">오후 03:00</span>
+              <span class="text-[11px] text-amber-700 leading-tight">저녁 먹기 전에 돌아오자</span>
+            </button>
+            <button type="button" class="time-slot-btn py-2.5 px-2.5 rounded-xl border-2 border-stone-200 hover:border-amber-400 text-stone-700 text-sm font-medium text-center transition-all bg-white flex flex-col items-center justify-center gap-0.5" data-time="오후 06:00" data-desc="저녁 먹고 다녀오자">
+              <span class="font-bold text-sm text-stone-800">오후 06:00</span>
+              <span class="text-[11px] text-amber-700 leading-tight">저녁 먹고 다녀오자</span>
+            </button>
+          </div>
+          <input type="hidden" id="selectedTime" required>
+          <input type="hidden" id="selectedTimeDesc">
+        </div>
+
+        <!-- 3D Pure Bread Objects Selection Grid -->
+        <div>
+          <label class="block text-sm font-bold text-bakery-dark mb-2 flex items-center justify-between">
+            <span class="flex items-center gap-1.5">
+              <span>🎯</span>
+              <span>꼭 쟁취할 성심당 빵 (다중 선택)</span>
+            </span>
+            <span class="text-xs text-stone-400">클릭해서 선택</span>
+          </label>
+          <div class="grid grid-cols-2 gap-2.5" id="breadGrid">
+            <!-- 1. 튀김소보로 (순수 개체) -->
+            <div class="bread-card active cursor-pointer p-3 rounded-2xl border-2 border-stone-200 bg-white transition-all flex items-center gap-2.5"
+                 data-bread-name="튀김소보로"
+                 data-bread-img="images/thumb/soboro_solo_trans.png"
+                 onclick="toggleBreadCard(this)">
+              <img src="images/thumb/soboro_solo_trans.png" alt="튀김소보로" class="w-12 h-12 object-contain drop-shadow select-none">
+              <div class="text-left leading-tight">
+                <div class="font-bold text-sm text-stone-800">튀김소보로</div>
+                <div class="text-[11px] text-amber-700">전설의 1위 빵 🥖</div>
+              </div>
+            </div>
+
+            <!-- 2. 카레고로케 (순수 개체) -->
+            <div class="bread-card active cursor-pointer p-3 rounded-2xl border-2 border-stone-200 bg-white transition-all flex items-center gap-2.5"
+                 data-bread-name="카레고로케"
+                 data-bread-img="images/thumb/croquette_solo_trans.png"
+                 onclick="toggleBreadCard(this)">
+              <img src="images/thumb/croquette_solo_trans.png" alt="카레고로케" class="w-12 h-12 object-contain drop-shadow select-none">
+              <div class="text-left leading-tight">
+                <div class="font-bold text-sm text-stone-800">카레고로케</div>
+                <div class="text-[11px] text-amber-700">바삭 알찬 풍미 🍛</div>
+              </div>
+            </div>
+
+            <!-- 3. 소금크루아상 (순수 개체) -->
+            <div class="bread-card active cursor-pointer p-3 rounded-2xl border-2 border-stone-200 bg-white transition-all flex items-center gap-2.5"
+                 data-bread-name="소금크루아상"
+                 data-bread-img="images/thumb/croissant_solo_trans.png"
+                 onclick="toggleBreadCard(this)">
+              <img src="images/thumb/croissant_solo_trans.png" alt="소금크루아상" class="w-12 h-12 object-contain drop-shadow select-none">
+              <div class="text-left leading-tight">
+                <div class="font-bold text-sm text-stone-800">소금크루아상</div>
+                <div class="text-[11px] text-amber-700">버터와 소금 단짠 🥐</div>
+              </div>
+            </div>
+
+            <!-- 4. 순수 롤케익 (순수 개체) -->
+            <div class="bread-card active cursor-pointer p-3 rounded-2xl border-2 border-stone-200 bg-white transition-all flex items-center gap-2.5"
+                 data-bread-name="과일 롤케익"
+                 data-bread-img="images/thumb/rollcake_solo_trans.png"
+                 onclick="toggleBreadCard(this)">
+              <img src="images/thumb/rollcake_solo_trans.png" alt="롤케익" class="w-12 h-12 object-contain drop-shadow select-none">
+              <div class="text-left leading-tight">
+                <div class="font-bold text-sm text-stone-800">과일 롤케익</div>
+                <div class="text-[11px] text-amber-700">부드러운 크림 🍰</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="pt-2">
+          <button type="submit" id="submitScheduleBtn"
+            class="w-full py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white title-font text-xl rounded-2xl shadow-lg hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] transition-all flex items-center justify-center gap-2">
+            <span>약속 확정하기</span>
+            <span>👉</span>
+          </button>
+        </div>
+      </form>
+    </div>
+
+
+    <!-- ============================================== -->
+    <!-- PAGE 3: 신청이 확인되었습니다. 감사합니다 -->
+    <!-- ============================================== -->
+    <div id="page3" class="glass-card rounded-3xl p-6 sm:p-8 text-center hidden transition-all duration-500 shadow-2xl relative overflow-hidden">
+      <!-- Mini Seongsimdang Front Entrance Icon Badge -->
+      <div class="w-20 h-20 mx-auto mb-2 relative">
+        <img src="images/thumb/entrance_front_trans.png" alt="성심당" class="w-full h-full object-contain filter drop-shadow-md animate-bounce-slow">
+      </div>
+
+      <div class="inline-flex items-center gap-1.5 bg-green-100 text-green-800 text-xs font-bold px-3.5 py-1 rounded-full mb-2 border border-green-200">
+        <span>✓</span>
+        <span>예약 접수 완료</span>
+      </div>
+
+      <h2 class="title-font text-2xl sm:text-3xl text-bakery-dark mb-1">
+        신청이 확인되었습니다.
+      </h2>
+      <h3 class="title-font text-xl sm:text-2xl text-amber-600 mb-5">
+        감사합니다! 🍞❤️
+      </h3>
+
+      <!-- Cute Ticket Design -->
+      <div class="bg-amber-50/90 rounded-2xl p-5 border border-amber-200/80 shadow-sm text-left mb-5 relative">
+        <div class="flex items-center justify-between pb-3 border-b border-amber-200/60 mb-3">
+          <span class="font-bold text-bakery-dark text-sm flex items-center gap-1.5">
+            <span>🎫</span> 성심당 빵지순례 탑승권
+          </span>
+          <span class="text-xs bg-amber-200 text-amber-900 font-semibold px-2 py-0.5 rounded">
+            CONFIRMED
+          </span>
+        </div>
+
+        <div class="space-y-2.5 text-sm">
+          <div class="flex justify-between items-center">
+            <span class="text-stone-500">약속 일자</span>
+            <span id="ticketDate" class="font-bold text-stone-800">-</span>
+          </div>
+          <div class="flex justify-between items-start">
+            <span class="text-stone-500 pt-0.5">출발 시간</span>
+            <div class="text-right">
+              <span id="ticketTime" class="font-bold text-amber-700 block">-</span>
+              <span id="ticketTimeDesc" class="text-xs text-stone-500 block">-</span>
+            </div>
+          </div>
+          <div class="flex justify-between items-start">
+            <span class="text-stone-500">목표 빵 리스트</span>
+            <div id="ticketBreadsContainer" class="flex flex-wrap gap-1.5 justify-end max-w-[210px]">
+              <!-- Dynamic 3D badge icons inserted here -->
+            </div>
+          </div>
+          <div class="flex justify-between items-center">
+            <span class="text-stone-500">만남 장소</span>
+            <span class="font-semibold text-stone-800">성심당 본점 입구 앞 📍</span>
+          </div>
+        </div>
+
+        <div class="ticket-dashed my-4"></div>
+
+        <div class="text-center text-xs text-stone-500 font-medium">
+          당일 갓 구운 빵 냄새를 따라 찾아오세요! 🥐
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row gap-2.5">
+        <button onclick="triggerConfetti()"
+          class="flex-1 py-3 px-4 bg-amber-500 hover:bg-amber-600 text-white rounded-xl font-bold text-sm shadow transition-all hover:scale-105 active:scale-95 flex items-center justify-center gap-1.5">
+          <span>🎊</span>
+          <span>축하 꽃가루 또 뿌리기</span>
+        </button>
+        <button onclick="shareOrCopy()"
+          class="flex-1 py-3 px-4 bg-stone-100 hover:bg-stone-200 text-stone-700 rounded-xl font-bold text-sm border border-stone-300 transition-all flex items-center justify-center gap-1.5">
+          <span id="shareIcon">💌</span>
+          <span id="shareText">초대장 링크 복사</span>
+        </button>
+      </div>
+
+      <button onclick="restartFlow()" class="mt-4 text-xs text-stone-400 hover:text-stone-600 underline">
+        처음으로 돌아가기 (다시 장난치기)
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Sweet Alert / Toast Notification -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 bg-stone-800/90 text-white px-5 py-2.5 rounded-full text-sm font-medium shadow-2xl opacity-0 transition-opacity duration-300 pointer-events-none z-50 flex items-center gap-2">
+    <span>✨</span>
+    <span id="toastMsg">메시지</span>
+  </div>
+
+  <script>
+    // Audio synthesis for playful SFX
+    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    function playBeep(type = 'success') {
+      try {
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        const now = audioCtx.currentTime;
+        if (type === 'dodge') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(340, now);
+          osc.frequency.exponentialRampToValueAtTime(640, now + 0.16);
+          gain.gain.setValueAtTime(0.12, now);
+          gain.gain.linearRampToValueAtTime(0.01, now + 0.16);
+          osc.start(now);
+          osc.stop(now + 0.16);
+        } else if (type === 'select') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(523.25, now);
+          gain.gain.setValueAtTime(0.15, now);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'fanfare') {
+          const notes = [523.25, 659.25, 783.99, 1046.50];
+          notes.forEach((freq, idx) => {
+            const o = audioCtx.createOscillator();
+            const g = audioCtx.createGain();
+            o.connect(g);
+            g.connect(audioCtx.destination);
+            o.type = 'triangle';
+            o.frequency.setValueAtTime(freq, now + idx * 0.08);
+            g.gain.setValueAtTime(0.12, now + idx * 0.08);
+            g.gain.exponentialRampToValueAtTime(0.001, now + idx * 0.08 + 0.35);
+            o.start(now + idx * 0.08);
+            o.stop(now + idx * 0.08 + 0.35);
+          });
+        }
+      } catch (e) {}
+    }
+
+    // ==========================================
+    // Page 1: Active Mouse-Aware Runaway "싫어" Button
+    // ==========================================
+    const noBtn = document.getElementById('noBtn');
+    const noBtnText = document.getElementById('noBtnText');
+    const noBtnEmoji = document.getElementById('noBtnEmoji');
+    const yesBtn = document.getElementById('yesBtn');
+    const teaseMsg = document.getElementById('teaseMsg');
+    const mainMascotImg = document.getElementById('mainMascotImg');
+    const btnContainer = document.getElementById('btnContainer');
+
+    const teaseTexts = [
+      "정말요..?",
+      "안돼요!",
+      "안갈꺼예요?",
+      "계속 도망가야지"
+    ];
+
+    const breadIcons = [
+      'images/thumb/entrance_front_trans.png',
+      'images/thumb/soboro_solo_trans.png',
+      'images/thumb/croquette_solo_trans.png',
+      'images/thumb/croissant_solo_trans.png',
+      'images/thumb/rollcake_solo_trans.png'
+    ];
+
+    let dodgeCount = 0;
+    let isDetached = false;
+    let currentX = 0;
+    let currentY = 0;
+    let lastSoundTime = 0;
+
+    // Attach to body so NO parent container can EVER clip it or hide it
+    function initializeRunningMode() {
+      if (isDetached) return;
+
+      const rect = noBtn.getBoundingClientRect();
+      currentX = rect.left;
+      currentY = rect.top;
+
+      // Keep a spacer in btnContainer so "좋아!" button doesn't jump
+      const spacer = document.createElement('div');
+      spacer.id = 'noBtnSpacer';
+      spacer.className = 'w-full sm:w-44 h-16 pointer-events-none opacity-0';
+      btnContainer.appendChild(spacer);
+
+      // Append directly to document.body!
+      // This is 100% immune to containing block / backdrop-filter / overflow clipping!
+      document.body.appendChild(noBtn);
+      noBtn.classList.add('is-running');
+      noBtn.style.left = `${currentX}px`;
+      noBtn.style.top = `${currentY}px`;
+      noBtn.style.width = `${rect.width}px`;
+      noBtn.style.height = `${rect.height}px`;
+
+      isDetached = true;
+    }
+
+    // Active evasion: slides smoothly away from cursor
+    function evadeCursor(cursorX, cursorY, intensity = 1.0) {
+      // Only active on Page 1
+      if (document.getElementById('page1').classList.contains('hidden')) return;
+
+      if (!isDetached) {
+        initializeRunningMode();
+      }
+
+      const rect = noBtn.getBoundingClientRect();
+      const btnW = rect.width;
+      const btnH = rect.height;
+      const btnCenterX = currentX + btnW / 2;
+      const btnCenterY = currentY + btnH / 2;
+
+      let dx = btnCenterX - cursorX;
+      let dy = btnCenterY - cursorY;
+      let dist = Math.hypot(dx, dy);
+
+      if (dist === 0) {
+        dx = (Math.random() - 0.5) * 2;
+        dy = (Math.random() - 0.5) * 2;
+        dist = Math.hypot(dx, dy);
+      }
+
+      // Normalized direction vector away from mouse
+      let dirX = dx / dist;
+      let dirY = dy / dist;
+
+      // Glide distance: between 140px and 220px depending on approach
+      const step = (150 + Math.random() * 70) * intensity;
+      let targetX = currentX + dirX * step;
+      let targetY = currentY + dirY * step;
+
+      // Viewport boundaries with 24px padding
+      const padding = 24;
+      const minX = padding;
+      const maxX = window.innerWidth - btnW - padding;
+      const minY = padding;
+      const maxY = window.innerHeight - btnH - padding;
+
+      // Wall Bounce: if pushed against a wall, deflect towards open space
+      if (targetX < minX || targetX > maxX) {
+        dirX = -dirX;
+        targetX = currentX + dirX * (step * 1.2);
+        // Also add vertical escape
+        targetY += (Math.random() > 0.5 ? 1 : -1) * 120;
+      }
+      if (targetY < minY || targetY > maxY) {
+        dirY = -dirY;
+        targetY = currentY + dirY * (step * 1.2);
+        // Also add horizontal escape
+        targetX += (Math.random() > 0.5 ? 1 : -1) * 120;
+      }
+
+      // Avoid getting pushed too close to the YES button
+      const yesRect = yesBtn.getBoundingClientRect();
+      const distToYes = Math.hypot(targetX - yesRect.left, targetY - yesRect.top);
+      if (distToYes < 150) {
+        targetX = targetX > window.innerWidth / 2 ? minX + 50 : maxX - 50;
+      }
+
+      // Strict clamping so it NEVER leaves the screen
+      currentX = Math.max(minX, Math.min(maxX, targetX));
+      currentY = Math.max(minY, Math.min(maxY, targetY));
+
+      // Slight tilt while running away
+      const tilt = (dirX > 0 ? 6 : -6);
+      noBtn.style.transform = `rotate(${tilt}deg) scale(0.97)`;
+      setTimeout(() => {
+        noBtn.style.transform = 'rotate(0deg) scale(1)';
+      }, 200);
+
+      noBtn.style.left = `${currentX}px`;
+      noBtn.style.top = `${currentY}px`;
+
+      dodgeCount++;
+
+      // Play sound (throttled to avoid sound overload)
+      const now = Date.now();
+      if (now - lastSoundTime > 220) {
+        playBeep('dodge');
+        lastSoundTime = now;
+      }
+
+      // Cycle mascot image and funny message
+      mainMascotImg.src = breadIcons[dodgeCount % breadIcons.length];
+      const textIndex = Math.min(Math.max(0, dodgeCount - 1), teaseTexts.length - 1);
+      const currentMsg = teaseTexts[textIndex];
+      teaseMsg.textContent = currentMsg;
+      teaseMsg.style.opacity = '1';
+
+      // Gradually expand "좋아!" button
+      const currentScale = 1 + Math.min(dodgeCount * 0.035, 0.35);
+      yesBtn.style.transform = `scale(${currentScale})`;
+
+      // Change button text in the requested sequence
+      if (dodgeCount === 1) {
+        noBtnText.textContent = "정말요..?";
+        noBtnEmoji.textContent = "🥺";
+      } else if (dodgeCount === 2) {
+        noBtnText.textContent = "안돼요!";
+        noBtnEmoji.textContent = "🙅‍♀️";
+      } else if (dodgeCount === 3) {
+        noBtnText.textContent = "안갈꺼예요?";
+        noBtnEmoji.textContent = "😢";
+      } else {
+        noBtnText.textContent = "계속 도망가야지";
+        noBtnEmoji.textContent = "🏃‍♂️";
+      }
+    }
+
+    // Active cursor detection: recognizes mouse approach within 130px
+    window.addEventListener('mousemove', (e) => {
+      if (document.getElementById('page1').classList.contains('hidden')) return;
+
+      const rect = noBtn.getBoundingClientRect();
+      const btnCenterX = rect.left + rect.width / 2;
+      const btnCenterY = rect.top + rect.height / 2;
+      const distance = Math.hypot(e.clientX - btnCenterX, e.clientY - btnCenterY);
+
+      // Detection threshold: when cursor approaches within 130px, actively slide away!
+      if (distance < 130) {
+        evadeCursor(e.clientX, e.clientY, 1.0);
+      }
+    });
+
+    // Touch & Immediate Hover Evade Handlers (failsafe)
+    noBtn.addEventListener('mouseenter', (e) => {
+      evadeCursor(e.clientX, e.clientY, 1.3);
+    });
+    noBtn.addEventListener('pointerenter', (e) => {
+      evadeCursor(e.clientX, e.clientY, 1.3);
+    });
+    noBtn.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      evadeCursor(touch.clientX, touch.clientY, 1.4);
+    }, { passive: false });
+    noBtn.addEventListener('pointerdown', (e) => {
+      e.preventDefault();
+      evadeCursor(e.clientX, e.clientY, 1.4);
+    });
+    noBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      evadeCursor(e.clientX, e.clientY, 1.5);
+    });
+
+    // Page 1 -> Page 2 transition
+    yesBtn.addEventListener('click', () => {
+      playBeep('select');
+      triggerMiniConfetti();
+      
+      const page1 = document.getElementById('page1');
+      const page2 = document.getElementById('page2');
+
+      // Cleanly remove the runaway button and any spacer
+      if (noBtn) noBtn.remove();
+      const spacer = document.getElementById('noBtnSpacer');
+      if (spacer) spacer.remove();
+
+      page1.classList.add('opacity-0', 'scale-95');
+      setTimeout(() => {
+        page1.classList.add('hidden');
+        page2.classList.remove('hidden');
+        page2.classList.add('animate-pop');
+
+        // Set default date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        const yyyy = tomorrow.getFullYear();
+        const mm = String(tomorrow.getMonth() + 1).padStart(2, '0');
+        const dd = String(tomorrow.getDate()).padStart(2, '0');
+        const minDate = `${yyyy}-${mm}-${dd}`;
+        const dateInput = document.getElementById('visitDate');
+        dateInput.value = minDate;
+        dateInput.min = minDate;
+
+        const firstSlot = document.querySelector('.time-slot-btn');
+        if (firstSlot) firstSlot.click();
+      }, 300);
+    });
+
+    // ==========================================
+    // ==========================================
+    // Page 2: Schedule & Bread Selection
+    // ==========================================
+    const timeSlots = document.querySelectorAll('.time-slot-btn');
+    const selectedTimeInput = document.getElementById('selectedTime');
+    const selectedTimeDescInput = document.getElementById('selectedTimeDesc');
+
+    timeSlots.forEach(btn => {
+      btn.addEventListener('click', () => {
+        playBeep('select');
+        timeSlots.forEach(b => {
+          b.classList.remove('border-amber-500', 'bg-amber-100', 'text-amber-900', 'shadow-md', 'scale-102');
+          b.classList.add('border-stone-200', 'bg-white', 'text-stone-700');
+        });
+
+        btn.classList.remove('border-stone-200', 'bg-white', 'text-stone-700');
+        btn.classList.add('border-amber-500', 'bg-amber-100', 'text-amber-900', 'shadow-md', 'scale-102');
+
+        selectedTimeInput.value = btn.dataset.time;
+        if (selectedTimeDescInput) {
+          selectedTimeDescInput.value = btn.dataset.desc || '';
+        }
+      });
+    });
+
+    function toggleBreadCard(card) {
+      playBeep('select');
+      card.classList.toggle('active');
+    }
+
+    function goToPage3() {
+      const visitDate = document.getElementById('visitDate').value;
+      const visitTime = selectedTimeInput.value;
+
+      if (!visitDate) {
+        showToast('방문 날짜를 선택해주세요! 📅');
+        return;
+      }
+      if (!visitTime) {
+        showToast('출발 시간을 선택해주세요! ⏰');
+        return;
+      }
+
+      playBeep('fanfare');
+
+      // Collect selected breads
+      const activeCards = document.querySelectorAll('.bread-card.active');
+      const ticketBreadsContainer = document.getElementById('ticketBreadsContainer');
+      ticketBreadsContainer.innerHTML = '';
+
+      if (activeCards.length === 0) {
+        ticketBreadsContainer.innerHTML = '<span class="text-xs text-stone-600 font-bold">성심당 전 메뉴 싹쓸이! 🥖</span>';
+      } else {
+        activeCards.forEach(card => {
+          const name = card.dataset.breadName;
+          const img = card.dataset.breadImg;
+          const badge = document.createElement('div');
+          badge.className = 'inline-flex items-center gap-1.5 bg-amber-100/90 text-amber-900 text-xs px-2.5 py-1 rounded-full border border-amber-300 font-medium shadow-xs';
+          badge.innerHTML = `<img src="${img}" class="w-4 h-4 object-contain"> <span>${name}</span>`;
+          ticketBreadsContainer.appendChild(badge);
+        });
+      }
+
+      // Update date & time on ticket
+      const formattedDate = new Date(visitDate).toLocaleDateString('ko-KR', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        weekday: 'short'
+      });
+      document.getElementById('ticketDate').textContent = formattedDate;
+      document.getElementById('ticketTime').textContent = visitTime;
+      const ticketTimeDescElem = document.getElementById('ticketTimeDesc');
+      if (ticketTimeDescElem && selectedTimeDescInput) {
+        ticketTimeDescElem.textContent = selectedTimeDescInput.value ? `(${selectedTimeDescInput.value})` : '';
+      }
+
+      // Switch view to Page 3
+      const page2 = document.getElementById('page2');
+      const page3 = document.getElementById('page3');
+
+      page2.classList.add('opacity-0', 'scale-95');
+      setTimeout(() => {
+        page2.classList.add('hidden');
+        page3.classList.remove('hidden');
+        page3.classList.add('animate-pop');
+
+        triggerConfetti();
+      }, 300);
+    }
+
+    // ==========================================
+    // Celebration & Utilities
+    // ==========================================
+    function triggerConfetti() {
+      if (typeof confetti !== 'function') return;
+
+      const count = 220;
+      const defaults = { origin: { y: 0.65 } };
+
+      function fire(particleRatio, opts) {
+        confetti({
+          ...defaults,
+          ...opts,
+          particleCount: Math.floor(count * particleRatio)
+        });
+      }
+
+      fire(0.25, { spread: 26, startVelocity: 55, colors: ['#F59E0B', '#D97706', '#EA580C'] });
+      fire(0.2, { spread: 60, colors: ['#FDE68A', '#FBBF24', '#B45309'] });
+      fire(0.35, { spread: 100, decay: 0.91, scalar: 0.8 });
+      fire(0.1, { spread: 120, startVelocity: 25, decay: 0.92, scalar: 1.2 });
+      fire(0.1, { spread: 120, startVelocity: 45 });
+    }
+
+    function triggerMiniConfetti() {
+      if (typeof confetti === 'function') {
+        confetti({ particleCount: 50, spread: 60, origin: { y: 0.6 } });
+      }
+    }
+
+    function showToast(msg) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      toastMsg.textContent = msg;
+      toast.classList.remove('opacity-0');
+      toast.classList.add('opacity-100');
+      setTimeout(() => {
+        toast.classList.remove('opacity-100');
+        toast.classList.add('opacity-0');
+      }, 2500);
+    }
+
+    function shareOrCopy() {
+      playBeep('select');
+      const breadNames = Array.from(document.querySelectorAll('.bread-card.active'))
+        .map(c => c.dataset.breadName)
+        .join(', ') || '성심당 전 메뉴';
+
+      const timeDetail = selectedTimeDescInput && selectedTimeDescInput.value 
+        ? `${document.getElementById('ticketTime').textContent} (${selectedTimeDescInput.value})`
+        : document.getElementById('ticketTime').textContent;
+
+      const textToCopy = `🍞 저랑 성심당 가요!\n🗓️ 일시: ${document.getElementById('ticketDate').textContent}\n⏰ 출발 시간: ${timeDetail}\n📍 장소: 성심당 본점 입구 앞\n🥖 목표 빵: ${breadNames}\n✨ 신청이 확인되었습니다. 감사합니다! 튀김소보로 먹으러 갑시다!`;
+
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(textToCopy).then(() => {
+          showToast('초대장 내용이 클립보드에 복사되었습니다! 💌');
+        }).catch(() => {
+          showToast('초대장 복사 완료! 💌');
+        });
+      } else {
+        showToast('초대장 복사 완료! 💌');
+      }
+    }
+
+    function restartFlow() {
+      location.reload();
+    }
+  </script>
+</body>
+</html>
